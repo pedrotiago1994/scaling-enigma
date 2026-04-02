@@ -34,6 +34,38 @@ Opcional: confirme a versão do script:
 Select-String -Path $script -Pattern "Script-Version"
 ```
 
+### Plano B (mais rápido): criar e rodar script sem ZIP
+Se o `$script` vier vazio/null, pule o ZIP e rode este bloco único:
+
+```powershell
+$localScript = "$env:USERPROFILE\Desktop\fix-codex-now.ps1"
+@'
+param([switch]$EnableWsl)
+$config = "$env:USERPROFILE\.codex\config.toml"
+$dir = Split-Path -Parent $config
+if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
+if (-not (Test-Path $config)) { "# criado automaticamente`n" | Set-Content $config -Encoding UTF8 }
+$content = Get-Content $config -Raw
+if ($content -notmatch '(?m)^\[execution\]\s*$') { $content += "`n[execution]`n" }
+$useWsl = if ($EnableWsl) { 'true' } else { 'false' }
+if ($content -match '(?m)^\s*use_wsl\s*=\s*(true|false)\s*$') {
+  $content = [regex]::Replace($content, '(?m)^\s*use_wsl\s*=\s*(true|false)\s*$', "use_wsl = $useWsl")
+} else {
+  $content = [regex]::Replace($content, '(?m)^\[execution\]\s*$', "[execution]`r`nuse_wsl = $useWsl")
+}
+if ($content -notmatch '(?m)^\[logs\]\s*$') { $content += "`n[logs]`n" }
+if ($content -match '(?m)^\s*level\s*=\s*"[^"]+"\s*$') {
+  $content = [regex]::Replace($content, '(?m)^\s*level\s*=\s*"[^"]+"\s*$', 'level = "debug"')
+} else {
+  $content = [regex]::Replace($content, '(?m)^\[logs\]\s*$', "[logs]`r`nlevel = " + '"debug"')
+}
+Set-Content -Path $config -Value $content -Encoding UTF8
+Write-Host "OK: config atualizada em $config"
+'@ | Set-Content -Path $localScript -Encoding UTF8
+
+powershell -ExecutionPolicy Bypass -File $localScript
+```
+
 ### Se você baixou ZIP (pasta compactada)
 Pelo seu print, o arquivo está como **pasta compactada** (`scaling-enigma-codex-fix-this-error`) e ainda não foi extraído.
 
