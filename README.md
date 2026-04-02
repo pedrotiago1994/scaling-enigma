@@ -38,7 +38,9 @@ Select-String -Path $script -Pattern "Script-Version"
 Se o `$script` vier vazio/null, pule o ZIP e rode este bloco único:
 
 ```powershell
-$localScript = "$env:USERPROFILE\Desktop\fix-codex-now.ps1"
+$localDir = Join-Path $env:TEMP "codex-fix"
+$null = New-Item -ItemType Directory -Path $localDir -Force
+$localScript = Join-Path $localDir "fix-codex-now.ps1"
 @'
 param([switch]$EnableWsl)
 $config = "$env:USERPROFILE\.codex\config.toml"
@@ -64,6 +66,7 @@ Write-Host "OK: config atualizada em $config"
 '@ | Set-Content -Path $localScript -Encoding UTF8
 
 powershell -ExecutionPolicy Bypass -File $localScript
+Write-Host "Script salvo em: $localScript"
 ```
 
 ### Se você baixou ZIP (pasta compactada)
