@@ -109,6 +109,35 @@ powershell -ExecutionPolicy Bypass -File "$repo\scripts\fix-codex-3221225781.ps1
 
 ---
 
+### Se o `config.toml` já está correto e o erro continua
+Quando o arquivo já está assim:
+
+```toml
+[execution]
+use_wsl = false
+[logs]
+level = "debug"
+```
+
+...e mesmo assim aparece `3221225781`, normalmente falta runtime do Windows.
+
+Execute no PowerShell (Administrador):
+
+```powershell
+winget install --id Microsoft.VCRedist.2015+.x64 --accept-package-agreements --accept-source-agreements --silent
+```
+
+Depois:
+1. Reinicie o Windows.
+2. Abra o VS Code.
+3. Recarregue a extensão Codex.
+
+Se ainda falhar, teste com WSL habilitado:
+
+```powershell
+(Get-Content "$env:USERPROFILE\.codex\config.toml" -Raw).Replace('use_wsl = false','use_wsl = true') | Set-Content "$env:USERPROFILE\.codex\config.toml" -Encoding UTF8
+```
+
 ## Dá para fazer isso automaticamente no seu computador?
 Sim — eu não consigo executar diretamente no seu PC remoto, mas deixei um script PowerShell para você rodar e automatizar quase tudo.
 
