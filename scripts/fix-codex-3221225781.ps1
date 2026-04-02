@@ -47,7 +47,7 @@ function Ensure-Config {
     if ($content -match '(?m)^\s*level\s*=\s*"[^"]+"\s*$') {
         $content = [regex]::Replace($content, '(?m)^\s*level\s*=\s*"[^"]+"\s*$', 'level = "debug"')
     } else {
-        $content = [regex]::Replace($content, '(?m)^\[logs\]\s*$', "[logs]`r`nlevel = \"debug\"")
+        $content = [regex]::Replace($content, '(?m)^\[logs\]\s*$', "[logs]`r`nlevel = `"debug`"")
     }
 
     Set-Content -Path $Path -Value $content -Encoding UTF8
