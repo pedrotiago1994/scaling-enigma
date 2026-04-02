@@ -17,6 +17,30 @@ $repo = "$env:USERPROFILE\Downloads\scaling-enigma"
 Test-Path "$repo\scripts\fix-codex-3221225781.ps1"
 ```
 
+### Se você baixou ZIP (pasta compactada)
+Pelo seu print, o arquivo está como **pasta compactada** (`scaling-enigma-codex-fix-this-error`) e ainda não foi extraído.
+
+Extraia e rode assim:
+
+```powershell
+$zip = "$env:USERPROFILE\Downloads\scaling-enigma-codex-fix-this-error.zip"
+$dest = "$env:USERPROFILE\Downloads\scaling-enigma-codex-fix-this-error"
+Expand-Archive -Path $zip -DestinationPath $dest -Force
+```
+
+Depois encontre automaticamente o script:
+
+```powershell
+$script = Get-ChildItem "$dest" -Recurse -Filter "fix-codex-3221225781.ps1" | Select-Object -First 1 -ExpandProperty FullName
+$script
+```
+
+Se apareceu um caminho, execute:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "$script"
+```
+
 Se retornar `True`, execute:
 
 ```powershell
